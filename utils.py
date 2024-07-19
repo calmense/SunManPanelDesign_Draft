@@ -3,11 +3,9 @@ import plotly.graph_objects as go
 
 
 def draw_arrow(fig, xList, yList, direction, scaleX, scaleY):
-    fig.add_trace(go.Scatter(x = xList, y = yList,
-                marker= dict(size=8, symbol= "arrow", angleref="previous", color='black'), line=dict(width=1)))
+    fig.add_trace(go.Scatter(x = xList, y = yList, marker= dict(size=8, symbol= "arrow", angleref="previous", color='black'), line=dict(width=1)))
        
-    fig.add_trace(go.Scatter(x = list(reversed(xList)), y = list(reversed(yList)),
-                marker= dict(size=8, symbol= "arrow", angleref="previous", color='black')))
+    fig.add_trace(go.Scatter(x = list(reversed(xList)), y = list(reversed(yList)), marker= dict(size=8, symbol= "arrow", angleref="previous", color='black')))
     
     if direction == "X":
         xLine1 = [xList[0], xList[0]]

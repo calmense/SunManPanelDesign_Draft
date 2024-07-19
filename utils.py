@@ -1,9 +1,5 @@
 from math import pi, sqrt, cos, sin, atan
-import pandas as pd
-import streamlit as st
 import plotly.graph_objects as go
-from itertools import product
-from collections import defaultdict
 
 
 def draw_arrow(fig, xList, yList, direction, scaleX, scaleY):
@@ -41,3 +37,5 @@ def add_text(fig, text, xPosition, yPosition, textSize):
                                             xanchor='left',
                                             xref="x",
                                             yref="y"))
+    
+    

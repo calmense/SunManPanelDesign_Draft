@@ -5,7 +5,6 @@ import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 from PIL import Image
-import geopandas as gpd
 import folium
 from streamlit_folium import folium_static
 from utils import *

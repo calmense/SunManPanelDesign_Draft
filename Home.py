@@ -5,8 +5,6 @@ import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 from PIL import Image
-import folium
-from streamlit_folium import folium_static
 from utils import *
 
 # from würth_screws_functions import get_length, ec5_87_tragfähigkeit_vg, get_min_distances_axial, get_min_distances_shear

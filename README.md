@@ -1,4 +1,4 @@
-<img src="https://github.com/calmense/SunManPanelDesign/blob/main/Sunman_logo.png" alt="SunMan Logo" width="200"/>
+<img src="https://github.com/calmense/SunManPanelDesign_Draft/blob/main/Sunman_logo.png" alt="SunMan Logo" width="200"/>
 
 # SunMan Solar Panel Designer - Web Tool
 

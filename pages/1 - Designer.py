@@ -5,10 +5,9 @@ import plotly.graph_objects as go
 from PIL import Image
 from utils import *
 
+
 # Set page configuration
-st.set_page_config(page_title="Initial Evaluation", layout="wide")
-
-
+st.set_page_config(page_title="Designer", layout="wide")
 
 st.markdown(
     """
@@ -38,13 +37,13 @@ st.markdown('''
 unsafe_allow_html=True
 )
 
-# Eingangsparameter
+# Eingangsparameter Netherlands
 # Listen
-countries = ["Germany", "Netherlands", "Belgium", "Poland", "Czech Republic", "Spain", "Italy"]
-windZones = [["I", "II", "III", "IV"], ["I", "II", "III"], ["23", "24", "25", "26"], ["I", "II", "III"], ["I", "II", "III", "IV", "V"], ["A", "B", "C"], ["1-2", "3", "4-7", "8", "9"]]
+countries = ["Germany", "Belgium", "Netherlands", "Poland", "Czech Republic", "Spain", "Italy"]
+windZones = [["I", "II", "III", "IV"], ["23", "24", "25", "26"], ["I", "II", "III"], ["1", "2", "3"], ["I", "II", "III", "IV", "V"], ["A", "B", "C"], ["1-2", "3", "4-7", "8", "9"]]
 imagesCountry = ["wind_zones_germany.png", "wind_zones_belgium.png", "wind_zones_netherlands.png", "wind_zones_poland.png", "wind_zones_czech.png", "wind_zones_spain.png", "wind_zones_italy.png"]
 terrainCategories = ["0", "I", "II", "III", "IV"]
-fundBasicWindVelocities = [[23, 25, 28, 30], [30, 27, 25], [23, 24, 25, 26], [22, 27, 25], [22.5, 25, 29, 30, 31], [26, 27, 29], [25, 27, 28, 30, 31]]
+fundBasicWindVelocities = [[23, 25, 28, 30], [23, 24, 25, 26], [30, 27, 25], [22, 27, 25], [22.5, 25, 27.5, 30, 36], [26, 27, 29], [25, 27, 28, 30, 31]]
 heightCategories = [[0.5, 0.65, 0.85, 0.8, 1.05, 0.95, 1.25, 1.4], [0.65, 0.8, 1.0, 0.95, 1.2, 1.15, 1.4, 'N/A'], [0.75, 0.9, 1.1, 1.1, 1.3, 1.3, 1.55, 'N/A']]
 
 # Nested list containing all categories data
@@ -138,7 +137,7 @@ with st.expander("Expand"):
 
     # calculation
     fundBasicWindVelocity = fundBasicWindVelocities[indexCountries][indexWindZone]
-    baseVelocityPressure = round(fundBasicWindVelocity**2*1.25*0.5*0.001, 3)
+    baseVelocityPressure = round(fundBasicWindVelocity**2*1.25*0.5*0.001, 2)
 
     col1, col2, col3, col4, col5, col6 = st.columns(6)
     with col1:
@@ -147,11 +146,11 @@ with st.expander("Expand"):
         st.latex("")
         st.latex("")
         st.latex("")
-        st.caption('EN 1991-4 Equation 4.1')
+        st.caption('EN 1991-1-4 Equation 4.1')
         st.latex(r"\text{Fund. Basic Wind Velocity }" + ' v_{b0} = ' + str(fundBasicWindVelocity) + ' m/s')
         st.latex("")
-        st.caption('EN 1991-4 Equation 4.10')
-        st.latex(r"\text{Base Velocity Pressure }" + ' q_{p} = ' + str(baseVelocityPressure) + ' N/mm^2')
+        st.caption('EN 1991-1-4 Equation 4.10')
+        st.latex(r"\text{Base Velocity Pressure }" + ' q_{b0} = ' + str(baseVelocityPressure) + ' kN/m^2')
 
 
     with col3:
@@ -169,7 +168,7 @@ with st.expander("Expand"):
     st.latex("")
 
 
-    st.caption('EN 1991-4 Table 4.1')
+    st.caption('EN 1991-1-4 Table 4.1')
     col1, col2, col3, col4, col5, col6 = st.columns(6)
     with col1:
         terrainCategory = st.selectbox('Terrain Category', ["0", "I", "II", "III", "IV"])
@@ -185,7 +184,7 @@ with st.expander("Expand"):
 
     # calculation
     terrainFactor = round(interpolate_value(buildingHeight, indexTerrainCategory), 2)
-    gustSpeedPressure = round(terrainFactor * baseVelocityPressure, 3)
+    gustSpeedPressure = round(terrainFactor * baseVelocityPressure, 2)
 
     col1, col2, col3, col4, col5, col6 = st.columns(6)
     with col1:
@@ -193,7 +192,7 @@ with st.expander("Expand"):
         st.latex("")
         st.latex("")
         st.latex("")
-        st.caption('EN 1991-4 Image 4.2')
+        st.caption('EN 1991-1-4 Image 4.2')
         st.latex(r"\text{Terrain Factor }" + ' z_e(z) = ' + str(terrainFactor))
         st.latex("")
         st.caption('EN 1991-4 Equation 4.8')
@@ -209,12 +208,18 @@ with st.expander("Expand"):
 
     st.subheader("Additional Factor")
     st.write("For designing the adhesives, a partial safety factor **γ = 1.5** for wind is applied according to Eurocode EN 1990-1-1.")
+
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
+    with col1:
+        st.latex(r"\text{Partial safety factor }" + ' \gamma = 1.5')
+        partialSafetyFactor = 1.5
+
     st.write("An additional factor is added for surface roughness due to wind flow around panels, undercurrents on rooftops and continuous behavior.")
 
     col1, col2, col3, col4, col5, col6 = st.columns(6)
     with col1:
-        additionalFactor = float(st.text_input('Additional factor 𝜒', 1.2))
-        partialSafetyFactor = 1.5
+        st.latex(r"\text{Additional factor }" + ' \chi = 1.2')
+        additionalFactor = 1.2
 
 
 
@@ -635,5 +640,4 @@ with st.expander("Expand"):
     st.write(figBuilding)
 
     
-
 

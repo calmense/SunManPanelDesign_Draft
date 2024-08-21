@@ -8,7 +8,7 @@ This web tool provides a structural framework for adhering solar panels directly
 
 Please note that the tool does not assume responsibility for any errors, and users are advised to verify the results independently.
 
-**Link**: [SunMan Solar Panel Designer](https://sunman-arup-solar-panel-design_draft.streamlit.app/)
+**Link**: [SunMan Solar Panel Designer](https://sunman-arup-solar-panel-design-draft.streamlit.app/)
 
 ---
 

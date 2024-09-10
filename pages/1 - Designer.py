@@ -661,6 +661,22 @@ st.markdown('<h3 class="subsubheader">Print your summary report as a PDF.</h3>',
 st.write("")
 st.write("")
 
+import streamlit as st
+from fpdf import FPDF
+import io
+import plotly.graph_objects as go
+import base64
+
+# Sample Plotly table
+figTable = go.Figure(data=[go.Table(
+    header=dict(values=['A', 'B', 'C']),
+    cells=dict(values=[[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+)])
+
+def create_download_link(val, filename):
+    b64 = base64.b64encode(val).decode()  # Encode the PDF bytes as base64
+    return f'<a href="data:application/octet-stream;base64,{b64}" download="{filename}.pdf">Download PDF</a>'
+
 with st.expander("Expand"):
     st.subheader("Design Wind Load")
     st.plotly_chart(figTable)
@@ -668,6 +684,16 @@ with st.expander("Expand"):
     export_as_pdf = st.button("Export Report")
 
     if export_as_pdf:
+        # Convert Plotly figure to image (PNG)
+        img_buf = io.BytesIO()
+        figTable.write_image(img_buf, format="png")  # Make sure 'kaleido' is installed
+        img_buf.seek(0)
+
+        # Save the image temporarily
+        img_path = "plotly_table.png"
+        with open(img_path, "wb") as f:
+            f.write(img_buf.getbuffer())
+
         # Create a PDF document
         pdf = FPDF()
         pdf.add_page()
@@ -690,14 +716,12 @@ with st.expander("Expand"):
         pdf.set_font('Arial', '', 12)  # Regular text
         pdf.cell(0, 10, "This section describes the wind loading performance...", ln=True)
 
-        # Convert Plotly figure to image (PNG)
-        img_buf = io.BytesIO()
-        figTable.write_image(img_buf, format="png")  # Make sure 'kaleido' is installed
-        img_buf.seek(0)
-
-        # Insert the Plotly image (table) into the PDF directly from the byte buffer
-        pdf.image(img_buf, x=10, y=60, w=190)  # Adjust position and size as needed
+        # Insert the Plotly image (table) into the PDF
+        pdf.image(img_path, x=10, y=60, w=190)  # Adjust position and size as needed
 
         # Export the PDF as a downloadable link in Streamlit
-        html = create_download_link(pdf.output(dest="S").encode("latin-1"), "Download_Report")
+        pdf_output = io.BytesIO()
+        pdf.output(pdf_output)
+        pdf_output.seek(0)
+        html = create_download_link(pdf_output.getvalue(), "Download_Report")
         st.markdown(html, unsafe_allow_html=True)

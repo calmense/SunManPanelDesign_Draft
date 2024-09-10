@@ -4,10 +4,18 @@ import streamlit as st
 import plotly.graph_objects as go
 from PIL import Image
 from utils import *
+import streamlit as st
+from fpdf import FPDF
+import base64
+import plotly.io as pio
+import io
+from kaleido import *
 
 
 # Set page configuration
 st.set_page_config(page_title="Designer", layout="wide")
+
+
 
 st.markdown(
     """
@@ -406,6 +414,7 @@ with st.expander("Expand"):
 
     st.plotly_chart(figTable)
 
+
 st.write("")
 st.write("")
 st.write("")
@@ -426,15 +435,18 @@ with st.expander("Expand"):
 
     col1, col2 = st.columns(2)
     with col1:
-        panelSize = st.selectbox('Panel Size', [1, 2])
+        panelSize = st.selectbox('Panel Size', ["SMF430", "SMF520"])
     with col2:
-        designGlueJointResistance = st.selectbox('Design Glue Joint Resistance [N/mm^2] ', [0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.20])
+        designGlueJointResistance = st.selectbox('Design Glue Joint Resistance [N/mm^2]', ["Dowsil 895", "Sika SG-20"])
+
+    designGlueJointResistanceValue = 0.14 if designGlueJointResistance == "Dowsil 895" else 0.17
+                                                 
 
     gapx = 0
     gapy = 0
 
     # solar panel
-    if panelSize == 1:
+    if panelSize == "SMF430":
         width = 1080
         height = 2054
         area = width * height
@@ -444,16 +456,14 @@ with st.expander("Expand"):
         height = 2246
         area = width * height
 
-    if panelSize == 1:
-        distance = (height - 100) / 4
-        gluingLength = width * 3
+    if panelSize == "SMF430":
+        gluingDistance = (height - 100) / 4
         linesXCoords = [[gapx, width + gapx], [gapx, width + gapx], [gapx, width + gapx], [gapx, width + gapx], [gapx, width + gapx]]
-        linesYCoords = [[gapy + 50, gapy + 50], [gapy + 50 + distance, gapy + 50 + distance], [gapy + 50 + distance*2, gapy + 50 + distance*2], [gapy + 50 + distance*3, gapy + 50 + distance*3], [gapy + 50 + distance*4, gapy + 50 + distance*4]]
+        linesYCoords = [[gapy + 50, gapy + 50], [gapy + 50 + gluingDistance, gapy + 50 + gluingDistance], [gapy + 50 + gluingDistance*2, gapy + 50 + gluingDistance*2], [gapy + 50 + gluingDistance*3, gapy + 50 + gluingDistance*3], [gapy + 50 + gluingDistance*4, gapy + 50 + gluingDistance*4]]
     else:
-        distance = (height - 100) / 5
-        gluingLength = width * 4
+        gluingDistance = (height - 100) / 5
         linesXCoords = [[gapx, width + gapx], [gapx, width + gapx], [gapx, width + gapx], [gapx, width + gapx], [gapx, width + gapx], [gapx, width + gapx]]
-        linesYCoords = [[gapy + 50, gapy + 50], [gapy + 50 + distance, gapy + 50 + distance], [gapy + 50 + distance*2, gapy + 50 + distance*2], [gapy + 50 + distance*3, gapy + 50 + distance*3], [gapy + 50 + distance*4, gapy + 50 + distance*4], [gapy + 50 + distance*5, gapy + 50 + distance*5]]
+        linesYCoords = [[gapy + 50, gapy + 50], [gapy + 50 + gluingDistance, gapy + 50 + gluingDistance], [gapy + 50 + gluingDistance*2, gapy + 50 + gluingDistance*2], [gapy + 50 + gluingDistance*3, gapy + 50 + gluingDistance*3], [gapy + 50 + gluingDistance*4, gapy + 50 + gluingDistance*4], [gapy + 50 + gluingDistance*5, gapy + 50 + gluingDistance*5]]
 
 
     scaleY = height / 400
@@ -527,8 +537,8 @@ with st.expander("Expand"):
         st.latex(r"\text{Width }" + ' B = ' + str(width) + ' mm')
         st.latex(r"\text{Length }" + ' L = ' + str(height) + ' mm')
         st.latex(r"\text{Area }" + ' A = ' + str(round(area * 0.001**2,1)) + ' m^2')
-        st.latex(r"\text{Gluing Length }" + ' L = ' + str(gluingLength) + ' mm')
-
+        st.latex(r"\text{Gluing Distance }" + ' a = ' + str(int(gluingDistance)) + ' mm')
+        st.latex(r"\text{Design Glue Joint Resistance }" + ' R_d = ' + str(designGlueJointResistanceValue) + ' N/mm^2')
         st.write("")
         st.write("")
         
@@ -537,24 +547,23 @@ with st.expander("Expand"):
 
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        utilTarget = st.selectbox("Utilization Target [%]", [10,20,30,40,50,60,70,80,90,100], 8)
-
+        utilTarget = 0.9
+        st.latex(r"\text{Utilization Target }" + ' = ' + str(utilTarget*10) + '%')
+        st.latex(r"\text{Gluing Width }" + 'b = ' + str(10) + ' mm')
 
     # Define the headers and the cells of the table
     headers = ['F', 'G', 'H']
 
     # Calculate wk and wd based on coefficients
-    glueArea = [abs(round(x / designGlueJointResistance * 10, 2)) for x in wd]
-    glueAreaTotal = [round(x * area * 0.001**2, 0) for x in glueArea]
-    glueWidthReq = [round( x / (gluingLength / 10) * 10, 0) for x in glueAreaTotal]
+    glueWidthReq = [round( abs(wdi) * (gluingDistance / 1000)/ (designGlueJointResistanceValue * utilTarget), 0) for wdi in wd]
     glueWidthUtil = [round( x / (utilTarget / 100), 0) for x in glueWidthReq]
 
-    colHeader = ["Glue / Area [cm<sup>2</sup>/m<sup>2</sup>]", "Glue Area [cm<sup>2</sup>]", "Glue Width [mm]", "Glue Width [mm]"]
-    colExpl = ["req. glue per m<sup>2</sup>", "req. glue per panel", "req. width [100%]", "req. width - target"]
+    colHeader = ["Wind Load [N/mm2]", "Glue Width [mm]", "Glue Width [mm]", "Glue Width [mm]"]
+    colExpl = ["w_d", "req. glue per panel", "req. width [100%]", "req. width - target"]
 
-    colF = [str(round(glueArea[0])) , str(round(glueAreaTotal[0])), str(round(glueWidthReq[0])), str(round(glueWidthUtil[0]))]
-    colG = [str(round(glueArea[1])) , str(round(glueAreaTotal[1])), str(round(glueWidthReq[1])), str(round(glueWidthUtil[1]))]
-    colH = [str(round(glueArea[2])) , str(round(glueAreaTotal[2])), str(round(glueWidthReq[2])), str(round(glueWidthUtil[2]))]
+    colF = [str(abs(wd[0])) , str(round(glueWidthReq[0])), str(round(glueWidthReq[0])), str(round(glueWidthReq[0]))]
+    colG = [str(abs(wd[1])) , str(round(glueWidthReq[1])), str(round(glueWidthReq[1])), str(round(glueWidthReq[1]))]
+    colH = [str(abs(wd[2])) , str(round(glueWidthReq[2])), str(round(glueWidthReq[2])), str(round(glueWidthReq[2]))]
 
 
     # Create the table
@@ -639,5 +648,56 @@ with st.expander("Expand"):
 
     st.write(figBuilding)
 
-    
+st.write("")
+st.write("")
+st.write("")
+col1, col2 = st.columns([3,60])
+with col1:
+    st.image("icon10.png", width=60)
+with col2:
+    st.header("Summary Report")
 
+st.markdown('<h3 class="subsubheader">Print your summary report as a PDF.</h3>', unsafe_allow_html=True)
+st.write("")
+st.write("")
+
+with st.expander("Expand"):
+    st.subheader("Design Wind Load")
+    st.plotly_chart(figTable)
+
+    export_as_pdf = st.button("Export Report")
+
+    if export_as_pdf:
+        # Create a PDF document
+        pdf = FPDF()
+        pdf.add_page()
+
+        # Add the logo with adjusted size
+        pdf.image("Sunman_logo.png", h=10)
+
+        # Set font and add a cell (title)
+        pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 15, "SunMan Solar Panels - Ultra-light, Glass-free Technology", ln=True)
+
+        # Add some space
+        pdf.ln(10)  # Adds 10 units of vertical space
+
+        # Set another font style for the next section
+        pdf.set_font('Arial', 'I', 12)
+        pdf.cell(0, 10, "Wind Loading", ln=True)
+
+        # Add more text
+        pdf.set_font('Arial', '', 12)  # Regular text
+        pdf.cell(0, 10, "This section describes the wind loading performance...", ln=True)
+
+        # Convert Plotly figure to image (PNG)
+        img_buf = io.BytesIO()
+        figTable.write_image(img_buf, format="png")  # Make sure 'kaleido' is installed
+        img_buf.seek(0)
+
+        # Insert the Plotly image (table) into the PDF directly from the byte buffer
+        pdf.image(img_buf, x=10, y=60, w=190)  # Adjust position and size as needed
+
+        # Export the PDF as a downloadable link in Streamlit
+        html = create_download_link(pdf.output(dest="S").encode("latin-1"), "Download_Report")
+        st.markdown(html, unsafe_allow_html=True)

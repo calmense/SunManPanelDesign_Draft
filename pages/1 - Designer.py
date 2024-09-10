@@ -684,15 +684,7 @@ with st.expander("Expand"):
     export_as_pdf = st.button("Export Report")
 
 if export_as_pdf:
-    # Convert Plotly figure to image (PNG)
-    img_buf = io.BytesIO()
-    figTable.write_image(img_buf, format="png")  # Make sure 'kaleido' is installed
-    img_buf.seek(0)
-
-    # Save the image temporarily
-    img_path = "plotly_table.png"
-    with open(img_path, "wb") as f:
-        f.write(img_buf.getbuffer())
+    
 
     # Create a PDF document
     pdf = FPDF()
@@ -716,8 +708,6 @@ if export_as_pdf:
     pdf.set_font('Arial', '', 12)  # Regular text
     pdf.cell(0, 10, "This section describes the wind loading performance...", ln=True)
 
-    # Insert the Plotly image (table) into the PDF
-    pdf.image(img_path, x=10, y=60, w=190)  # Adjust position and size as needed
 
     # Export the PDF as a downloadable link in Streamlit
     pdf_output = io.BytesIO()

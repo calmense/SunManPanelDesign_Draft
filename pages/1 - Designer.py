@@ -653,7 +653,7 @@ st.write("")
 st.write("")
 col1, col2 = st.columns([3,60])
 with col1:
-    st.image("icon10.png", width=60)
+    st.image("icon9.png", width=60)
 with col2:
     st.header("Summary Report")
 

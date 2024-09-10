@@ -683,4 +683,48 @@ with st.expander("Expand"):
 
     export_as_pdf = st.button("Export Report")
 
+if export_as_pdf:
+    # Convert Plotly figure to image (PNG)
+    img_buf = io.BytesIO()
+    figTable.write_image(img_buf, format="png")  # Make sure 'kaleido' is installed
+    img_buf.seek(0)
+
+    # Save the image temporarily
+    img_path = "plotly_table.png"
+    with open(img_path, "wb") as f:
+        f.write(img_buf.getbuffer())
+
+    # Create a PDF document
+    pdf = FPDF()
+    pdf.add_page()
+
+    # Add the logo with adjusted size
+    # pdf.image("Sunman_logo.png", h=10)
+
+    # Set font and add a cell (title)
+    pdf.set_font('Arial', 'B', 14)
+    pdf.cell(0, 15, "SunMan Solar Panels - Ultra-light, Glass-free Technology", ln=True)
+
+    # Add some space
+    pdf.ln(10)  # Adds 10 units of vertical space
+
+    # Set another font style for the next section
+    pdf.set_font('Arial', 'I', 12)
+    pdf.cell(0, 10, "Wind Loading", ln=True)
+
+    # Add more text
+    pdf.set_font('Arial', '', 12)  # Regular text
+    pdf.cell(0, 10, "This section describes the wind loading performance...", ln=True)
+
+    # Insert the Plotly image (table) into the PDF
+    pdf.image(img_path, x=10, y=60, w=190)  # Adjust position and size as needed
+
+    # Export the PDF as a downloadable link in Streamlit
+    pdf_output = io.BytesIO()
+    pdf.output(pdf_output)
+    pdf_output.seek(0)
+    html = create_download_link(pdf_output.getvalue(), "Download_Report")
+    st.markdown(html, unsafe_allow_html=True)
+
+
     

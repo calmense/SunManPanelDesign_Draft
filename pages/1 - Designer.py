@@ -688,7 +688,7 @@ if export_as_pdf:
     pdf = FPDF()
     pdf.add_page()
 
-    # Add the logo with adjusted size (optional)
+    # Add the logo with adjusted size
     # pdf.image("Sunman_logo.png", h=10)
 
     # Set font and add a cell (title)
@@ -706,11 +706,8 @@ if export_as_pdf:
     pdf.set_font('Arial', '', 12)  # Regular text
     pdf.cell(0, 10, "This section describes the wind loading performance...", ln=True)
 
-    # Export the PDF as a downloadable link in Streamlit
-    pdf_output = io.BytesIO()
-    pdf.output(pdf_output)
-    pdf_output.seek(0)
-    html = create_download_link(pdf_output.getvalue(), "Download_Report")
+    # Create a downloadable link for the PDF in Streamlit
+    html = create_download_link(pdf.output(dest="S").encode("latin-1"), "Download_Report")
     st.markdown(html, unsafe_allow_html=True)
 
 

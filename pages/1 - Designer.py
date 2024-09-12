@@ -659,17 +659,6 @@ st.markdown('<h3 class="subsubheader">Print your summary report as a PDF.</h3>',
 st.write("")
 st.write("")
 
-import streamlit as st
-from fpdf import FPDF
-import io
-import plotly.graph_objects as go
-import base64
-
-# Sample Plotly table
-figTable = go.Figure(data=[go.Table(
-    header=dict(values=['A', 'B', 'C']),
-    cells=dict(values=[[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-)])
 
 def create_download_link(val, filename):
     b64 = base64.b64encode(val).decode()  # Encode the PDF bytes as base64

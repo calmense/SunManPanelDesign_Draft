@@ -19,10 +19,10 @@ st.markdown(
     """
     <style>
     .subsubheader {
-        font-size: 1.5em; /* Adjust the font size as needed */
+        font-size: 1.2em; /* Adjust the font size as needed */
         font-weight: bold;
         margin-top: 0em; /* Adjust the margin as needed */
-        color: rgb(230, 30, 40); /* Change the color as needed */
+        color: rgb(49, 51, 63); /* Change the color as needed */
     }
     .text {
         font-size: 1.0em; /* Adjust the font size as needed */
@@ -665,37 +665,72 @@ def create_download_link(val, filename):
     return f'<a href="data:application/octet-stream;base64,{b64}" download="{filename}.pdf">Download PDF</a>'
 
 with st.expander("Expand"):
-    st.subheader("Design Wind Load")
-    st.plotly_chart(figTable)
-
     export_as_pdf = st.button("Export Report")
 
-if export_as_pdf:
-    # Create a PDF document
-    pdf = FPDF()
-    pdf.add_page()
+    if export_as_pdf:
 
-    # Add the logo with adjusted size
-    # pdf.image("Sunman_logo.png", h=10)
+        # Create a PDF document
+        pdf = FPDF()
+        pdf.add_page()
 
-    # Set font and add a cell (title)
-    pdf.set_font('Arial', 'B', 14)
-    pdf.cell(0, 15, "SunMan Solar Panels - Ultra-light, Glass-free Technology", ln=True)
+        # Add the logo with adjusted size
+        pdf.image("Sunman_logo.png", h=10)
 
-    # Add some space
-    pdf.ln(10)  # Adds 10 units of vertical space
+        # Set font and add a cell (title)
+        pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 15, "SunMan Solar Panels - Ultra-light, Glass-free Technology", ln=True)
 
-    # Set another font style for the next section
-    pdf.set_font('Arial', 'I', 12)
-    pdf.cell(0, 10, "Wind Loading", ln=True)
+        pdf.set_font('Arial', 'I', 12)
+        pdf.cell(0, 5, "This web tool is intended solely for preliminary assessment as planning aids. The results must be ", ln=True)
+        pdf.cell(0, 5, "verified by authorized personnel in the event of a project.", ln=True)
 
-    # Add more text
-    pdf.set_font('Arial', '', 12)  # Regular text
-    pdf.cell(0, 10, "This section describes the wind loading performance...", ln=True)
+        # Add some space
+        pdf.ln(10)  # Adds 10 units of vertical space
 
-    # Create a downloadable link for the PDF in Streamlit
-    html = create_download_link(pdf.output(dest="S").encode("latin-1"), "Download_Report")
-    st.markdown(html, unsafe_allow_html=True)
+        # Set another font style for the next section
+        pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 10, "Wind Loading", ln=True)
+
+        # Add more text
+        pdf.set_font('Arial', '', 12)  # Regular text
+        pdf.cell(0, 10, "Country: " + str(country) + " Wind Zone: " + str(windZone), ln=True)
+        pdf.cell(0, 10, "Fund. Basic Wind Velocity: vb0 = " + str(fundBasicWindVelocity) + ' m/s', ln=True)
+        pdf.cell(0, 10, "Base Velocity Pressure: qb0 = " + str(baseVelocityPressure) + ' kN/m2', ln=True)
+
+        pdf.add_page()
+
+        # Add the logo with adjusted size
+        pdf.image("Sunman_logo.png", h=8)
+
+        # Set font and add a cell (title)
+        pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 15, "SunMan Solar Panels - Ultra-light, Glass-free Technology", ln=True)
+
+        pdf.set_font('Arial', 'I', 12)
+        pdf.cell(0, 5, "This report is intended solely for preliminary assessment as planning aids. The results must be ", ln=True)
+        pdf.cell(0, 5, "verified by authorized personnel in the event of a project.", ln=True)
+
+        # Add some space
+        pdf.ln(10)  # Adds 10 units of vertical space
+
+        # Set another font style for the next section
+        pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 10, "Design Glue Joint Resistance", ln=True)
+
+        pdf.set_font('Arial', '', 12)  # Regular text
+
+        pdf.cell(0, 10, "Panel Size: " + str(panelSize), ln=True)
+        pdf.cell(0, 10, "Width B = " + str(width) + ' mm; Length L = ' + str(height) + ' mm', ln=True)
+        pdf.cell(0, 10, "Area A = " + str(round(area * 0.001**2, 1)) + ' m2', ln=True)
+        pdf.cell(0, 10, "Gluing Distance a = " + str(int(gluingDistance)) + ' mm', ln=True)
+
+        pdf.cell(0, 5, "", ln=True)
+        pdf.cell(0, 10, "Glue Manufacturer: " + str(designGlueJointResistance), ln=True)
+        pdf.cell(0, 10, "Design Glue Joint Resistance Rd = " + str(designGlueJointResistanceValue) + ' Nmm2', ln=True)
+
+        # Create a downloadable link for the PDF in Streamlit
+        html = create_download_link(pdf.output(dest="S").encode("latin-1"), "Download_Report")
+        st.markdown(html, unsafe_allow_html=True)
 
 
 

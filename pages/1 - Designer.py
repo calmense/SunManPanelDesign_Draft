@@ -1,15 +1,13 @@
 from math import pi, sqrt, cos, sin
-import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 from PIL import Image
 from utils import *
 import streamlit as st
+
 from fpdf import FPDF
-import base64
-import plotly.io as pio
 import io
-from kaleido import *
+import base64
 
 
 # Set page configuration

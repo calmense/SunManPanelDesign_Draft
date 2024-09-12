@@ -689,6 +689,18 @@ with st.expander("Expand"):
 
         # Set another font style for the next section
         pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 10, "Preface", ln=True)
+        
+        # Add more text
+        pdf.set_font('Arial', '', 12)  # Regular text
+        pdf.cell(0, 5, "This web tool provides a structural framework for adhering solar panels directly onto roofs ", ln=True)
+        pdf.cell(0, 5, "without the need for screws. The panels are made from a durable, glass-free organic polymer ", ln=True)
+        pdf.cell(0, 5, "composite that excels in various climatic conditions and extreme temperatures. Please note", ln=True)
+        pdf.cell(0, 5, "that the tool does not assume responsibility for any errors, and users are advised to", ln=True)
+        pdf.cell(0, 5, "verify the results independently.", ln=True)
+
+        # Set another font style for the next section
+        pdf.set_font('Arial', 'B', 14)
         pdf.cell(0, 10, "Wind Loading", ln=True)
 
         # Add more text

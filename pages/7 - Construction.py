@@ -11,10 +11,10 @@ st.markdown(
     """
     <style>
     .subsubheader {
-        font-size: 1.5em; /* Adjust the font size as needed */
+        font-size: 1.2em; /* Adjust the font size as needed */
         font-weight: bold;
         margin-top: 0em; /* Adjust the margin as needed */
-        color: rgb(230, 30, 40); /* Change the color as needed */
+        color: rgb(49, 51, 63); /* Change the color as needed */
     }
     .text {
         font-size: 1.0em; /* Adjust the font size as needed */
@@ -40,7 +40,7 @@ st.write("")
 
 col1, col2 = st.columns([3,60])
 with col1:
-    st.image("icon7.png", width=60)
+    st.image("icon8.png", width=60)
 with col2:
     st.header("Construction")
 st.markdown('<h3 class="subsubheader">Installation and Compliance Protocols</h3>', unsafe_allow_html=True)

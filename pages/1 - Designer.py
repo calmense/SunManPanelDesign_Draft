@@ -133,14 +133,14 @@ st.markdown(
     I confirm my understanding that the calculator is a preliminary design tool, and I have reviewed and completed the following design steps before proceeding to the next stage:
     </h3>
     <ul>
-        <li><b>Initial evaluation</b></li>
-        <li><b>Load calculation</b></li>
-        <li><b>Suitable construction</b></li>
-        <li><b>Glue join resistance</b></li>
-        <li><b>Checks on roof substrate</b></li>
-        <li><b>Approval - permission</b></li>
+        <li><b>Initial Evaluation</b></li>
+        <li><b>Load Calculation</b></li>
+        <li><b>Suitable Construction</b></li>
+        <li><b>Glue Joint Resistance</b></li>
+        <li><b>Checks on Roof Substrate</b></li>
+        <li><b>Approval - Permission</b></li>
         <li><b>Construction</b></li>
-        <li><b>Completion and maintenance</b></li>
+        <li><b>Completion and Maintenance</b></li>
     </ul>
     """, 
     unsafe_allow_html=True

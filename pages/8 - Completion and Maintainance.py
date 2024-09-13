@@ -11,10 +11,10 @@ st.markdown(
     """
     <style>
     .subsubheader {
-        font-size: 1.5em; /* Adjust the font size as needed */
+        font-size: 1.2em; /* Adjust the font size as needed */
         font-weight: bold;
         margin-top: 0em; /* Adjust the margin as needed */
-        color: rgb(230, 30, 40); /* Change the color as needed */
+        color: rgb(49, 51, 63); /* Change the color as needed */
     }
     .text {
         font-size: 1.0em; /* Adjust the font size as needed */

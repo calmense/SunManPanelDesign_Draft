@@ -9,11 +9,10 @@ from fpdf import FPDF
 import io
 import base64
 
-
 # Set page configuration
 st.set_page_config(page_title="Designer", layout="wide")
 
-
+# color: rgb(230, 30, 40); /* Change the color as needed */
 
 st.markdown(
     """
@@ -42,6 +41,8 @@ st.markdown('''
 </style>''',
 unsafe_allow_html=True
 )
+
+
 
 # Eingangsparameter Netherlands
 # Listen
@@ -114,9 +115,19 @@ st.write("")
 st.write("")
 
 
+
+
+
+# ==========================================================================
+
+
+
+st.write("")
+st.write("")
+st.write("")
 col1, col2 = st.columns([3,60])
 with col1:
-    st.image("icon2.png", width=60)
+    st.image("icon2.png", width=40)
 with col2:
     st.header("Load Calculation")
 
@@ -352,15 +363,19 @@ with st.expander("Expand"):
     y = gapy+e_10_1/2
     add_text(figBuilding, "Area F", x , y, 15)
 
-
     figBuilding.update_layout(
         autosize=False,
-        width = 800,
-        height = 600,
+        width=600,
+        height=400,
         uirevision='static',
         xaxis=dict(scaleanchor="y", scaleratio=1, fixedrange=False, visible=False),
         yaxis=dict(scaleanchor="x", scaleratio=1, fixedrange=False, visible=False),
-        showlegend=False)
+        showlegend=False,
+        margin=dict(l=0, r=0, t=0, b=0),  # Minimize the margins
+        paper_bgcolor='rgba(0,0,0,0)',  # Transparent background if needed
+        plot_bgcolor='rgba(0,0,0,0)'    # Transparent plot background
+    )
+
 
 
     # Hide the axis
@@ -387,9 +402,15 @@ with st.expander("Expand"):
     colG = [coefficients[1], wk[1], wd[1]]
     colH = [coefficients[2], wk[2], wd[2]]
 
+    columns = ['Roof area', 'Explanation'] + headers
+    cell_text = [colExpl, colF, colG, colH]
+
+    # create matplotlib tabel
+    createMatplotTable(columns, cell_text)
+
     # Create the table
     figTable = go.Figure(data=[go.Table(
-        header=dict(values=['Roof area', 'Explanation'] + headers,  # Empty string for the first header cell
+        header=dict(values = columns,  # Empty string for the first header cell
                     fill_color='white',
                     height=35,
                     font=dict(color='red', size=16, family="Times New Roman"),
@@ -407,18 +428,25 @@ with st.expander("Expand"):
     figTable.update_layout(
         width=900,
         height=200,
-        margin=dict(l=5, r=5, t=10, b=10)
+        margin=dict(l=0, r=0, t=0, b=0),  # Minimize the margins as much as possible
+        paper_bgcolor='rgba(0,0,0,0)',  # Transparent paper background (optional)
+        plot_bgcolor='rgba(0,0,0,0)'    # Transparent plot background (optional)
     )
+
 
     st.plotly_chart(figTable)
 
+
+
+
+# ==========================================================================
 
 st.write("")
 st.write("")
 st.write("")
 col1, col2 = st.columns([3,60])
 with col1:
-    st.image("icon4.png", width=60)
+    st.image("icon4.png", width=40)
 with col2:
     st.header("Glue Joint Resistance")
 
@@ -435,7 +463,12 @@ with st.expander("Expand"):
     with col1:
         panelSize = st.selectbox('Panel Size', ["SMF430", "SMF520"])
     with col2:
-        designGlueJointResistance = st.selectbox('Design Glue Joint Resistance [N/mm^2]', ["Dowsil 895", "Sika SG-20"])
+        designGlueJointResistance = st.selectbox('Glue Manufacturer', ["Dowsil 895", "Sika SG-20"])
+
+    st.write("")
+    st.markdown('Both glues are ETAG approved, so the design strength R<sub>d</sub> is specified in the datasheet, eliminating the need for further reduction factors.', unsafe_allow_html=True)
+    
+
 
     designGlueJointResistanceValue = 0.14 if designGlueJointResistance == "Dowsil 895" else 0.17
                                                  
@@ -467,7 +500,7 @@ with st.expander("Expand"):
     scaleY = height / 400
     scaleX = 400 / height
 
-    fig = go.Figure(go.Scatter(x=[gapx + 0,gapx + width,gapx + width,gapx + 0, gapx + 0], 
+    figPanel = go.Figure(go.Scatter(x=[gapx + 0,gapx + width,gapx + width,gapx + 0, gapx + 0], 
                             y=[0 + gapy,0 + gapy, height + gapy,height + gapy, 0 + gapy], 
                             line=dict(color='darkgrey'),
                             mode="lines",
@@ -477,26 +510,26 @@ with st.expander("Expand"):
 
     # hatching
     pyLogo = Image.open("hatch.png")
-    fig.add_layout_image(
+    figPanel.add_layout_image(
             dict(source=pyLogo, xref="x", yref="y",
                 x = gapx, y = gapy + height,
                 sizex = width, sizey = height,
                 sizing = "stretch",
                 layer="below"))
 
-    def draw_line(fig, xList, yList, size, color, opacity):
-        fig.add_trace(go.Scatter(x = list(reversed(xList)), y = list(reversed(yList)), 
+    def draw_line(figPanel, xList, yList, size, color, opacity):
+        figPanel.add_trace(go.Scatter(x = list(reversed(xList)), y = list(reversed(yList)), 
                                 mode="lines", line=dict(color=color, width=size / 5), opacity=opacity))
 
     for i in range(len(linesYCoords)):
-        draw_line(fig, linesXCoords[i], linesYCoords[i], 12, "red", 1)
+        draw_line(figPanel, linesXCoords[i], linesYCoords[i], 12, "red", 1)
 
     #____________________TEXT____________________
     # text sizes
     titleSize = + 20
 
     # update layout
-    fig.update_layout(
+    figPanel.update_layout(
         autosize=False,
         width = 500,
         height = 700,
@@ -508,14 +541,14 @@ with st.expander("Expand"):
         showlegend=False)
 
     # Hide the axis
-    fig.update_xaxes(showline=False, showgrid=False, zeroline=False)
-    fig.update_yaxes(showline=False, showgrid=False, zeroline=False)
+    figPanel.update_xaxes(showline=False, showgrid=False, zeroline=False)
+    figPanel.update_yaxes(showline=False, showgrid=False, zeroline=False)
 
     col1, col2 = st.columns(2)
     with col1:
         st.write("")
         st.subheader("SunMan Solar Panel")
-        st.write(fig)
+        st.write(figPanel)
 
     with col2:
         st.write("")
@@ -546,26 +579,29 @@ with st.expander("Expand"):
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         utilTarget = 0.9
-        st.latex(r"\text{Utilization Target }" + ' = ' + str(utilTarget*10) + '%')
+        st.latex(r"\text{Utilization Target} = " + str(int(utilTarget*100)) + r"\, \%")
         st.latex(r"\text{Gluing Width }" + 'b = ' + str(10) + ' mm')
 
     # Define the headers and the cells of the table
     headers = ['F', 'G', 'H']
 
     # Calculate wk and wd based on coefficients
-    glueWidthReq = [round( abs(wdi) * (gluingDistance / 1000)/ (designGlueJointResistanceValue * utilTarget), 0) for wdi in wd]
-    glueWidthUtil = [round( x / (utilTarget / 100), 0) for x in glueWidthReq]
+    glueWidthReq = [round( abs(wdi) * (gluingDistance / 1000)/ (designGlueJointResistanceValue / utilTarget), 0) for wdi in wd]
+    glueWidthChos = [round( x+5, -1) for x in glueWidthReq]
+    glueWidthUtil = [int( 100 *glueWidthReq[i] * utilTarget / (glueWidthChos[i])) for i in range(len(glueWidthChos))]
+    check = ["✅" if x < 100 else "❌" for x in glueWidthUtil]
 
-    colHeader = ["Wind Load [N/mm2]", "Glue Width [mm]", "Glue Width [mm]", "Glue Width [mm]"]
-    colExpl = ["w_d", "req. glue per panel", "req. width [100%]", "req. width - target"]
 
-    colF = [str(abs(wd[0])) , str(round(glueWidthReq[0])), str(round(glueWidthReq[0])), str(round(glueWidthReq[0]))]
-    colG = [str(abs(wd[1])) , str(round(glueWidthReq[1])), str(round(glueWidthReq[1])), str(round(glueWidthReq[1]))]
-    colH = [str(abs(wd[2])) , str(round(glueWidthReq[2])), str(round(glueWidthReq[2])), str(round(glueWidthReq[2]))]
+    colHeader = ["Wind Load [N/mm2]", "Glue Width [mm]", "Glue Width [mm]", "Utilization [%]", "Check"]
+    colExpl = ["w_d", "req. glue per panel", "chosen glue width", "-", "-"]
+
+    colF = [str(abs(wd[0])) , str(round(glueWidthReq[0])), str(int(glueWidthChos[0])), str(glueWidthUtil[0]) + "%", str(check[0])]
+    colG = [str(abs(wd[1])) , str(round(glueWidthReq[1])), str(int(glueWidthChos[1])), str(glueWidthUtil[1]) + "%", str(check[0])]
+    colH = [str(abs(wd[2])) , str(round(glueWidthReq[2])), str(int(glueWidthChos[2])), str(glueWidthUtil[2]) + "%", str(check[0])]
 
 
     # Create the table
-    fig = go.Figure(data=[go.Table(
+    figCheck = go.Figure(data=[go.Table(
         header=dict(values=['Roof area', 'Explanation'] + headers,  # Adding 'Roof Area' and other headers
                     fill_color='white',
                     height=35,
@@ -581,169 +617,129 @@ with st.expander("Expand"):
     ])
 
     # Set table layout
-    fig.update_layout(
+    figCheck.update_layout(
         width=900,
-        height=300,
+        height=230,
         margin=dict(l=5, r=5, t=10, b=10)
     )
 
-    st.write(fig)
-
-
-    st.markdown('<h3 class="subsubheader">Based on the design table chose a glue width.</h3>', unsafe_allow_html=True)
-    glueWidthMax = int(round(max(glueWidthUtil) + 10, -1))
-    
-
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        glueWidth = int(st.text_input('Glue Width [mm]', glueWidthMax))
-
-    # Define the headers and the cells of the table
-    headers = ['F', 'G', 'H']
-
-    # Calculate wk and wd based on coefficients
-    checkGreen = '<span style="color: green;">&#x2714;</span>'
-    checkRed = '<span style="color: red;">&#x2714;</span>'
-    glueWidthUtil = [round( x / (utilTarget / 100), 0) for x in glueWidthReq]
-    glueWidthUtilFinal = [round( (x / glueWidth)*100, 0) for x in glueWidthReq]
-    check = ["✅" if x < 100 else "❌" for x in glueWidthUtilFinal]
-
-
-
-    colHeader = ["Glue Width [mm]", "Glue Width [mm]", "Utilization [%]", "Check"]
-    colExpl = ["req. glue width [100%]", "chosen glue width", "-", "-"]
-   
-
-    colF = [str(round(glueWidthUtil[0])) , str(round(glueWidth)), str(round(glueWidthUtilFinal[0])) + "%", check[0]]
-    colG = [str(round(glueWidthUtil[1])) , str(round(glueWidth)), str(round(glueWidthUtilFinal[1])) + "%", check[1]]
-    colH = [str(round(glueWidthUtil[2])) , str(round(glueWidth)), str(round(glueWidthUtilFinal[2])) + "%", check[2]]
-
-
-    # Create the table
-    fig = go.Figure(data=[go.Table(
-        header=dict(values=['Roof area', 'Explanation'] + headers,  # Adding 'Roof Area' and other headers
-                    fill_color='white',
-                    height=35,
-                    font=dict(color='red', size=16, family="Times New Roman"),
-                    line=dict(color='darkslategray', width=2),
-                    align='center'),
-        cells=dict(values=[colHeader, colExpl, colF, colG, colH],
-                fill_color=['white', 'white', 'white', 'white'],
-                height=35,
-                font=dict(color=['red', 'grey', 'black', 'black', 'black'], size=16, family="Times New Roman"),
-                line=dict(color='darkslategray', width=2),
-                align='center'))
-    ])
-
-    # Set table layout
-    fig.update_layout(
-        width=900,
-        height=300,
-        margin=dict(l=5, r=5, t=10, b=0)
-    )
-
-    st.write(fig)
+    st.write(figCheck)
 
     st.write(figBuilding)
+
+
+
+
+# ==========================================================================
 
 st.write("")
 st.write("")
 st.write("")
 col1, col2 = st.columns([3,60])
 with col1:
-    st.image("icon9.png", width=60)
+    st.image("icon10.png", width=40)
 with col2:
     st.header("Summary Report")
 
-st.markdown('<h3 class="subsubheader">Print your summary report as a PDF.</h3>', unsafe_allow_html=True)
+st.markdown('<h3 class="subsubheader">Summary of the calculation.</h3>', unsafe_allow_html=True)
 st.write("")
 st.write("")
-
 
 def create_download_link(val, filename):
     b64 = base64.b64encode(val).decode()  # Encode the PDF bytes as base64
     return f'<a href="data:application/octet-stream;base64,{b64}" download="{filename}.pdf">Download PDF</a>'
 
 with st.expander("Expand"):
-    export_as_pdf = st.button("Export Report")
 
-    if export_as_pdf:
+    st.markdown('<h1 class="subsubheader">Preface</h1>', unsafe_allow_html=True)
+    st.markdown('This web tool provides a structural framework for adhering solar panels directly onto roofs without the need for screws. \
+                The panels are made from a durable, glass-free organic polymer composite that excels in various climatic conditions and extreme temperatures. ')
+    st.markdown('Please note that this tool does not assume responsibility for any errors, and users are advised to independently verify the results. \
+                It is intended solely for preliminary assessments as a planning aid, and the results must be confirmed by authorized personnel for project purposes', unsafe_allow_html=True)
+    
+    st.markdown('For more information, please visit: [https://de.sunman-energy.com/](https://de.sunman-energy.com/)')
 
-        # Create a PDF document
-        pdf = FPDF()
-        pdf.add_page()
 
-        # Add the logo with adjusted size
-        pdf.image("Sunman_logo.png", h=10)
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
 
-        # Set font and add a cell (title)
-        pdf.set_font('Arial', 'B', 14)
-        pdf.cell(0, 15, "SunMan Solar Panels - Ultra-light, Glass-free Technology", ln=True)
+        st.markdown('<h1 class="subsubheader">Wind Loading</h1>', unsafe_allow_html=True)
+        st.caption("DIN EN 1991-1-4")
 
-        pdf.set_font('Arial', 'I', 12)
-        pdf.cell(0, 5, "This web tool is intended solely for preliminary assessment as planning aids. The results must be ", ln=True)
-        pdf.cell(0, 5, "verified by authorized personnel in the event of a project.", ln=True)
+        st.write('Country: ' + str(country) + '; Wind Zone: ' + str(windZone))
+        st.write('Terrain Category: ' + str(terrainCategory))
+        st.write('Building Height: ' + str(buildingHeight) + ' m')
+        st.write('Building Length: ' + str(buildingLength) + ' m')
+        st.write('Building Width: ' + str(buildingWidth) + ' m')
+        st.write("")
+        st.markdown('Fund. Basic Wind Velocity v<sub>b0</sub> = ' + str(fundBasicWindVelocity) + ' m/s', unsafe_allow_html=True)
+        st.markdown('Base Velocity Pressure q<sub>b0</sub> = ' + str(baseVelocityPressure) + ' kN/m<sup>2</sup>', unsafe_allow_html=True)
+        st.markdown('Gust Speed Pressure q<sub>p</sub>(z) = ' + str(gustSpeedPressure) + 'N/mm<sup>2</sup>', unsafe_allow_html=True)
 
-        # Add some space
-        pdf.ln(10)  # Adds 10 units of vertical space
+    with col2:
+        st.write("")
+        st.write("")
+        st.write("")
+        st.write("")
+        st.image(imagesCountry[indexCountries], width=450)
+    
+    st.write("")    
+    st.write("")
+    st.markdown('<b>Design Wind Load</b>', unsafe_allow_html=True)
 
-        # Set another font style for the next section
-        pdf.set_font('Arial', 'B', 14)
-        pdf.cell(0, 10, "Preface", ln=True)
-        
-        # Add more text
-        pdf.set_font('Arial', '', 12)  # Regular text
-        pdf.cell(0, 5, "This web tool provides a structural framework for adhering solar panels directly onto roofs ", ln=True)
-        pdf.cell(0, 5, "without the need for screws. The panels are made from a durable, glass-free organic polymer ", ln=True)
-        pdf.cell(0, 5, "composite that excels in various climatic conditions and extreme temperatures. Please note", ln=True)
-        pdf.cell(0, 5, "that the tool does not assume responsibility for any errors, and users are advised to", ln=True)
-        pdf.cell(0, 5, "verify the results independently.", ln=True)
 
-        # Set another font style for the next section
-        pdf.set_font('Arial', 'B', 14)
-        pdf.cell(0, 10, "Wind Loading", ln=True)
+    figTable.update_layout(
+        width=800,  # Half the original width, adjust as needed
+        height=200,  # Half the original height, adjust as needed
+        margin=dict(l=0, r=0, t=0, b=0)  # Minimized margins
+    )
+    st.plotly_chart(figTable)
 
-        # Add more text
-        pdf.set_font('Arial', '', 12)  # Regular text
-        pdf.cell(0, 10, "Country: " + str(country) + " Wind Zone: " + str(windZone), ln=True)
-        pdf.cell(0, 10, "Fund. Basic Wind Velocity: vb0 = " + str(fundBasicWindVelocity) + ' m/s', ln=True)
-        pdf.cell(0, 10, "Base Velocity Pressure: qb0 = " + str(baseVelocityPressure) + ' kN/m2', ln=True)
+    st.markdown('<b>Roof Areas</b>', unsafe_allow_html=True)     
+    figBuilding.update_layout(
+        width=600,  # Half the original width, adjust as needed
+        height=400,  # Half the original height, adjust as needed
+        margin=dict(l=0, r=0, t=0, b=0)  # Minimized margins
+    )
+    st.write(figBuilding)
 
-        pdf.add_page()
 
-        # Add the logo with adjusted size
-        pdf.image("Sunman_logo.png", h=8)
-
-        # Set font and add a cell (title)
-        pdf.set_font('Arial', 'B', 14)
-        pdf.cell(0, 15, "SunMan Solar Panels - Ultra-light, Glass-free Technology", ln=True)
-
-        pdf.set_font('Arial', 'I', 12)
-        pdf.cell(0, 5, "This report is intended solely for preliminary assessment as planning aids. The results must be ", ln=True)
-        pdf.cell(0, 5, "verified by authorized personnel in the event of a project.", ln=True)
-
-        # Add some space
-        pdf.ln(10)  # Adds 10 units of vertical space
-
-        # Set another font style for the next section
-        pdf.set_font('Arial', 'B', 14)
-        pdf.cell(0, 10, "Design Glue Joint Resistance", ln=True)
-
-        pdf.set_font('Arial', '', 12)  # Regular text
-
-        pdf.cell(0, 10, "Panel Size: " + str(panelSize), ln=True)
-        pdf.cell(0, 10, "Width B = " + str(width) + ' mm; Length L = ' + str(height) + ' mm', ln=True)
-        pdf.cell(0, 10, "Area A = " + str(round(area * 0.001**2, 1)) + ' m2', ln=True)
-        pdf.cell(0, 10, "Gluing Distance a = " + str(int(gluingDistance)) + ' mm', ln=True)
-
-        pdf.cell(0, 5, "", ln=True)
-        pdf.cell(0, 10, "Glue Manufacturer: " + str(designGlueJointResistance), ln=True)
-        pdf.cell(0, 10, "Design Glue Joint Resistance Rd = " + str(designGlueJointResistanceValue) + ' Nmm2', ln=True)
-
-        # Create a downloadable link for the PDF in Streamlit
-        html = create_download_link(pdf.output(dest="S").encode("latin-1"), "Download_Report")
-        st.markdown(html, unsafe_allow_html=True)
-
+    st.markdown('<h1 class="subsubheader">Glue Joint Resistance</h1>', unsafe_allow_html=True)
+    st.markdown('<b>Note</b>: Testing is generally required by all manufacturers to verify there is sufficient bond between the adhesive and the roof surface.',unsafe_allow_html=True)
+    st.write("") 
 
 
     
+    
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+
+        st.markdown('Panel Size: <b>' + str(panelSize) + '</b>',unsafe_allow_html=True)
+        st.markdown('Panel Width B = ' + str(width) + ' mm', unsafe_allow_html=True)
+        st.markdown('Panel Length L = ' + str(height) + ' m', unsafe_allow_html=True)
+        st.markdown('Panel Area A = ' + str(round(area * 0.001**2,2)) + ' m<sup>2</sup>', unsafe_allow_html=True)
+
+        st.markdown('Gluing Distance a = ' + str(int(gluingDistance)) + ' mm', unsafe_allow_html=True)
+        st.write("")
+
+        st.markdown('Glue Manufacturer: <b>' + str(designGlueJointResistance) + '</b>', unsafe_allow_html=True)
+        st.markdown('Design Glue Joint Resistance Rd = ' + str(designGlueJointResistanceValue) + ' N/mm<sup>2</sup>', unsafe_allow_html=True)
+
+
+    with col2:
+        figPanel.update_layout(
+            width=700,  # Half the original width, adjust as needed
+            height=350,  # Half the original height, adjust as needed
+            margin=dict(l=0, r=0, t=0, b=0)  # Minimized margins
+        )
+        st.write(figPanel)
+
+    st.write("")    
+    st.write("")
+    st.markdown('Gluing Design Table', unsafe_allow_html=True)
+    figCheck.update_layout(
+        width=800,  # Half the original width, adjust as needed
+        height=250,  # Half the original height, adjust as needed
+        margin=dict(l=0, r=0, t=0, b=0)  # Minimized margins
+    )
+    st.write(figCheck)

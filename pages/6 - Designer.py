@@ -554,6 +554,8 @@ with st.expander("Expand"):
     st.write("")
     if gluaCalcType == "with ETAG":
         st.markdown('Both glues are ETAG approved, so the design strength R<sub>d</sub> is specified in the datasheet, eliminating the need for further reduction factors.', unsafe_allow_html=True)
+
+        st.latex(r"R_d = " + str(designGlueJointResistanceValue) + r" \, \text{N/mm}^2")
     else:
         st.markdown("<b>Note:</b> The glue does not have a European authorisation (ETAG).  \
                     The values used are based on the manufacturer's quality control and testing procedures and have not been independently verified. \
@@ -671,12 +673,7 @@ with st.expander("Expand"):
     st.subheader("Gluing Design Table")
     st.markdown('<h3 class="subsubheader">This table shows the required glue width.</h3>', unsafe_allow_html=True)
 
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        utilTarget = 1.0
-        st.latex(r"\text{Gluing Width }" + 'b = ' + str(10) + ' mm')
-    
-
+    utilTarget = 1.0
 
     # Define the headers and the cells of the table
     headers = ['F', 'G', 'H']
@@ -690,12 +687,18 @@ with st.expander("Expand"):
     check = ["✅" if x < 100 else "❌" for x in glueWidthUtil]
 
 
-    colHeader = ["Wind Load [N/mm2]", "Glue Width [mm]", "Glue Sausages", "Utilization [%]", "Check"]
-    colExpl = ["w_d", "req. glue per panel", "per glue line", "-", "-"]
+    # colHeader = ["Wind Load [N/mm2]", "Glue Width [mm]", "Glue Sausages", "Utilization [%]", "Check"]
+    # colExpl = ["w_d", "req. glue per panel", "per glue line", "-", "-"]
+    # colF = [str(abs(wd[0])) , str(round(glueWidthReq[0])), str(int(numberSausages[0])), str(glueWidthUtil[0]) + "%", str(check[0])]
+    # colG = [str(abs(wd[1])) , str(round(glueWidthReq[1])), str(int(numberSausages[1])), str(glueWidthUtil[1]) + "%", str(check[0])]
+    # colH = [str(abs(wd[2])) , str(round(glueWidthReq[2])), str(int(numberSausages[2])), str(glueWidthUtil[2]) + "%", str(check[0])]
 
-    colF = [str(abs(wd[0])) , str(round(glueWidthReq[0])), str(int(numberSausages[0])), str(glueWidthUtil[0]) + "%", str(check[0])]
-    colG = [str(abs(wd[1])) , str(round(glueWidthReq[1])), str(int(numberSausages[1])), str(glueWidthUtil[1]) + "%", str(check[0])]
-    colH = [str(abs(wd[2])) , str(round(glueWidthReq[2])), str(int(numberSausages[2])), str(glueWidthUtil[2]) + "%", str(check[0])]
+    colHeader = ["Wind Load [kN/m2]", "Glue Width [mm]"]
+    colExpl = ["w_d", "req. glue per panel"]
+
+    colF = [str(abs(wd[0])) , str(round(glueWidthReq[0]))]
+    colG = [str(abs(wd[1])) , str(round(glueWidthReq[1]))]
+    colH = [str(abs(wd[2])) , str(round(glueWidthReq[2]))]
 
 
     # Create the table
@@ -717,11 +720,12 @@ with st.expander("Expand"):
     # Set table layout
     figCheck.update_layout(
         width=900,
-        height=230,
-        margin=dict(l=5, r=5, t=10, b=10)
+        height=120,
+        margin=dict(l=5, r=5, t=10, b=0)
     )
 
     st.write(figCheck)
+    st.markdown("<b>Note:</b> The required glue width corresponds to 100% utilization. However, it is highly recommended to design for 80% utilization for safety and reliability.", unsafe_allow_html=True)
     st.write(figBuilding)
 
 
@@ -736,6 +740,13 @@ with col2:
 
 st.markdown('<h3 class="subsubheader">Chose how many panels you have in each roof area.</h3>', unsafe_allow_html=True)
 with st.expander("Expand"):
+
+    st.subheader("Input")
+    st.markdown('The gluing thickness is considered as <b>t = 5 mm</b>', unsafe_allow_html=True)
+    st.markdown('One panel has a gluing length of <b>L = ' + str(glueLength/1000) + ' m</b>.', unsafe_allow_html=True)
+    st.markdown('The gluing tube contains <b>600 ml </b>glue.', unsafe_allow_html=True)
+
+
     if 'noAreaH' not in st.session_state:
         st.session_state.noAreaH = 2
     if 'noAreaF' not in st.session_state:
@@ -744,39 +755,58 @@ with st.expander("Expand"):
         st.session_state.noAreaH = 2
 
     # Layout for columns
+    st.write("")
+    st.write("")
+    st.subheader("Number of Panels")
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         noAreaH = st.number_input('Area H', min_value=0, step=1, format="%i", value=1)
         st.write("")
         n = 0
-        st.write("Sausages per Panel: no = " + str(numberSausagesTotal[n]))
-        sausagesAreaH = noAreaH * numberSausagesTotal[n]
-        st.write("Sausages per area H: no = " + str(sausagesAreaH))
+        st.write("Width per gluing line: <b> w = " + str(int(glueWidthReq[n]))+ ' mm</b>', unsafe_allow_html=True)
+        sausagesAreaH = glueWidthReq[n] * glueLength/1000**2
+        st.write("Glue area per panel: <b> A = " + str(sausagesAreaH)+ ' m<sup>2</sup></b>', unsafe_allow_html=True)
+        sausagesVolumeH = round(sausagesAreaH * 0.005, 4)
+        st.write("Glue volume per panel: <b> V = " + str(sausagesVolumeH)+ ' m<sup>3</sup></b>', unsafe_allow_html=True)
+        sausagesVolumeHtot = round(sausagesVolumeH * noAreaH, 4)
+        st.write("Glue volume per roof area: <b> V = " + str(sausagesVolumeHtot)+ ' m<sup>3</sup></b>', unsafe_allow_html=True)
 
     with col2:
         noAreaF = st.number_input('Area F', min_value=0, step=1, format="%i", value=1)
         st.write("")
         n = 1
-        st.write("Sausages per Panel: no = " + str(numberSausagesTotal[n]))
-        sausagesAreaF = noAreaF * numberSausagesTotal[n]
-        st.write("Sausages per area H: no = " + str(sausagesAreaH))
+        st.write("Width per gluing line: <b> w = " + str(int(glueWidthReq[n]))+ ' mm</b>', unsafe_allow_html=True)
+        sausagesAreaF = glueWidthReq[n] * glueLength/1000**2
+        st.write("Glue area per panel: <b> A = " + str(sausagesAreaF)+ ' m<sup>2</sup></b>', unsafe_allow_html=True)
+        sausagesVolumeF = round(sausagesAreaF * 0.005, 4)
+        st.write("Glue volume per panel: <b> V = " + str(sausagesVolumeF)+ ' m<sup>3</sup></b>', unsafe_allow_html=True)
+        sausagesVolumeFtot = round(sausagesVolumeF * noAreaF, 4)
+        st.write("Glue volume per roof area: <b> V = " + str(sausagesVolumeFtot)+ ' m<sup>3</sup></b>', unsafe_allow_html=True)
 
     with col3:
         noAreaG = st.number_input('Area G', min_value=0, step=1, format="%i", value=1)
         st.write("")
         n = 2
-        st.write("Sausages per Panel: no = " + str(numberSausagesTotal[n]))
-        sausagesAreaG = noAreaG * numberSausagesTotal[n]
-        st.write("Sausages per area H: no = " + str(sausagesAreaH))
+        st.write("Width per gluing line: <b> w = " + str(int(glueWidthReq[n]))+ ' mm</b>', unsafe_allow_html=True)
+        sausagesAreaG = glueWidthReq[n] * glueLength/1000**2
+        st.write("Glue area per panel: <b> A = " + str(sausagesAreaG)+ ' m<sup>2</sup></b>', unsafe_allow_html=True)
+        sausagesVolumeG = round(sausagesAreaG * 0.005, 4)
+        st.write("Glue volume per panel: <b> V = " + str(sausagesVolumeG)+ ' m<sup>3</sup></b>', unsafe_allow_html=True)
+        sausagesVolumeGtot = round(sausagesVolumeG * noAreaG, 4)
+        st.write("Glue volume per roof area: <b> V = " + str(sausagesVolumeGtot)+ ' m<sup>3</sup></b>', unsafe_allow_html=True)
 
     st.write("")
     st.write("")
+    st.subheader("Estimate Total")
 
-    totalSausages = sausagesAreaH + sausagesAreaF + sausagesAreaG
-    totalGlueLength = totalSausages * width
+    totalVolume = sausagesVolumeHtot + sausagesVolumeFtot + sausagesVolumeGtot
+    numberTubes = int(round(totalVolume * 1000000 / 600 + 0.5,0))
+    numberTubesFact = int(round(numberTubes*1.1 + 0.5, 1))
 
-    st.write("Total sausages per roof: no = " + str(totalSausages))
-    st.write("Total glue length per roof: no = " + str(round(totalGlueLength/1000,1)) + " m")
+    st.write("Total number of tubes: " + str(numberTubes), unsafe_allow_html=True)
+    st.write("<b>Total number of tubes: " + str(numberTubesFact)+ ' (incl. 10%)</b>', unsafe_allow_html=True)
+    st.markdown("<b>Note:</b> It is advised to consider a waste factor of 10%.", unsafe_allow_html=True)
+
 
 
     st.write("")
@@ -915,6 +945,7 @@ if st.session_state.acknowledgement:
                 st.markdown('Glue Manufacturer: <b>' + str(glueManufacturer) + '</b>', unsafe_allow_html=True)
             else:
                 st.markdown('Glue Manufacturer: <b>' + str(gluaCalcType) + '</b>', unsafe_allow_html=True)
+                st.markdown('Char. Glue Joint Resistance Rk = ' + str(charGlueJointResistance) + ' N/mm<sup>2</sup>', unsafe_allow_html=True)
 
             st.markdown('Design Glue Joint Resistance Rd = ' + str(designGlueJointResistanceValue) + ' N/mm<sup>2</sup>', unsafe_allow_html=True)
 
@@ -932,7 +963,14 @@ if st.session_state.acknowledgement:
         st.markdown('Gluing Design Table', unsafe_allow_html=True)
         figCheck.update_layout(
             width=800,  # Half the original width, adjust as needed
-            height=250,  # Half the original height, adjust as needed
+            height=120,  # Half the original height, adjust as needed
             margin=dict(l=0, r=0, t=0, b=0)  # Minimized margins
         )
         st.write(figCheck)
+
+
+        st.markdown('<h1 class="subsubheader">Estimate Quantities</h1>', unsafe_allow_html=True)
+        st.markdown('The gluing thickness is considered as <b>t = 5 mm</b>', unsafe_allow_html=True)
+        st.markdown('One panel has a gluing length of <b>L = ' + str(glueLength/1000) + ' m</b>.', unsafe_allow_html=True)
+        st.markdown('The gluing tube contains <b>600 ml </b>glue.', unsafe_allow_html=True)
+        st.write("<b>Total number of tubes: " + str(numberTubesFact)+ ' (incl. 10%)</b>', unsafe_allow_html=True)

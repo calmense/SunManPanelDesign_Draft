@@ -102,7 +102,28 @@ with col2:
         }
         </style>
         <h3 class="text">
-            This document provides structural guidance for adhering solar panels directly to roofs without the need for screw penetrations.<br>
+            This document provides structural guidance for adhering solar panels directly to roofs without the need for screw penetrations.
             The solar panels utilize an organic polymer composite, devoid of glass, known for its exceptional durability in withstanding diverse climatic conditions and extreme temperatures.
         </h3>
     """, unsafe_allow_html=True)
+
+    st.write("")
+
+
+    st.markdown("""
+        <style>
+        .text {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            color: black;
+            line-height: 1.5;
+        }
+        </style>
+        <h3 class="text">
+            Please also refer to the structural design guide which is provided as a PDF. 
+        </h3>
+    """, unsafe_allow_html=True)
+
+    with open("2024-08-06 - Sunman Arup Step-By-Step Guide - Issue03.pdf", "rb") as file:
+        st.download_button(label="Download Design Guide", data=file, file_name="2024-08-06 - Sunman Arup Step-By-Step Guide - Issue03.pdf", mime="application/pdf")
+

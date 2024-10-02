@@ -20,7 +20,7 @@ st.markdown(
         font-size: 1.0em; /* Adjust the font size as needed */
         margin-top: 0em; /* Adjust the margin as needed */
         color: "black"; /* Change the color as needed */
-    }
+    }p
     </style>
     """,
     unsafe_allow_html=True
